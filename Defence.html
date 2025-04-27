@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PREDICT-HOME Proposal Defense</title>
+  <style>
+    /* Base styles with light theme */
+    :root {
+      --background: #f8fafc;
+      --foreground: #0f172a;
+      --primary: #0ea5e9;
+      --primary-foreground: #f8fafc;
+      --secondary: #f1f5f9;
+      --secondary-foreground: #0f172a;
+      --muted: #e2e8f0;
+      --muted-foreground: #64748b;
+      --accent: #f1f5f9;
+      --accent-foreground: #0f172a;
+      --border: #e2e8f0;
+      --ring: #94a3b8;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--background);
+      color: var(--foreground);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      background-color: var(--secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .presentation-title {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--muted-foreground);
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .slide-number {
+      font-size: 0.875rem;
+      color: var(--muted-foreground);
+    }
+
+    main {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .slides-container {
+      height: 100%;
+      transition: transform 0.5s ease-in-out;
+      display: flex;
+      flex-direction: row;
+    }
+
+    .slide {
+      min-width: 100%;
+      height: 100%;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .slide-content {
+      max-width: 900px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--foreground);
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      font-size: 2rem;
+      color: var(--foreground);
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      color: var(--foreground);
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      font-size: 1.125rem;
+      line-height: 1.6;
+      color: var(--foreground);
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+
+    ul, ol {
+      text-align: left;
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+
+    li {
+      font-size: 1.125rem;
+      line-height: 1.6;
+      margin-bottom: 0.5rem;
+    }
+
+    .highlight {
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .section-divider {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+      padding: 4rem 2rem;
+    }
+
+    .section-divider h2 {
+      color: var(--primary-foreground);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+
+    th, td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background-color: var(--secondary);
+    }
+
+    .card {
+      background-color: var(--secondary);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      width: 100%;
+    }
+
+    .risk-table {
+      width: 100%;
+    }
+
+    .risk-table th, .risk-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+
+    .high {
+      color: #ef4444;
+    }
+
+    .medium {
+      color: #f59e0b;
+    }
+
+    .low {
+      color: #10b981;
+    }
+
+    .very-high {
+      color: #dc2626;
+      font-weight: bold;
+    }
+
+    .button {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .button:hover {
+      opacity: 0.9;
+    }
+
+    .button:disabled {
+      background-color: var(--muted);
+      cursor: not-allowed;
+    }
+
+    footer {
+      padding: 0.5rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--secondary);
+      border-top: 1px solid var(--border);
+    }
+
+    .progress-bar {
+      height: 4px;
+      background-color: var(--muted);
+      width: 100%;
+    }
+
+    .progress {
+      height: 100%;
+      background-color: var(--primary);
+      transition: width 0.3s ease;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Placeholder image style */
+    .placeholder-image {
+      width: 500px;
+      height: 300px;
+      background-color: var(--muted);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 1.5rem 0;
+      border-radius: 0.5rem;
+    }
+
+    /* Timeline visualization */
+    .timeline {
+      display: flex;
+      width: 100%;
+      margin: 2rem 0;
+      position: relative;
+    }
+
+    .timeline-item {
+      flex: 1;
+      padding: 1rem;
+      border-top: 4px solid var(--primary);
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .timeline-date {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Architecture diagram styles */
+    .architecture {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .architecture-layer {
+      padding: 1rem;
+      background-color: var(--secondary);
+      border-radius: 0.5rem;
+      text-align: left;
+      position: relative;
+    }
+
+    .architecture-layer::after {
+      content: '↓';
+      position: absolute;
+      bottom: -1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.5rem;
+      color: var(--muted-foreground);
+    }
+
+    .architecture-layer:last-child::after {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="presentation-title">PREDICT-HOME Proposal Defense</div>
+    <div class="controls">
+      <span class="slide-number">1/14</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="slides-container" id="slidesContainer">
+      <!-- Slide 1: Title -->
+      <div class="slide">
+        <div class="slide-content">
+          <h1>PREDICT-HOME</h1>
+          <h2>An Explainable Hybrid Deep Learning System for Adaptive Domestic Energy Forecasting</h2>
+          <p>Proposal Defence Presentation</p>
+        </div>
+      </div>
+
+      <!-- Slide 2: Presentation Overview -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>Presentation Overview</h2>
+          <ol>
+            <li>
+              <strong>Topic Introduction</strong>
+              <ul>
+                <li>Societal context and need</li>
+                <li>Engineering challenges</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Literature Evaluation</strong>
+              <ul>
+                <li>Current approaches to energy forecasting</li>
+                <li>Limitations of existing methods</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Project Plan</strong>
+              <ul>
+                <li>Vision and objectives</li>
+                <li>Methodology and timeline</li>
+                <li>Expected outcomes</li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Slide 3: Section A Divider -->
+      <div class="slide section-divider">
+        <div class="slide-content">
+          <h2>SECTION A: Topic Introduction</h2>
+        </div>
+      </div>
+
+      <!-- Slide 4: The Global Energy Challenge -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>The Global Energy Challenge</h2>
+          <ul>
+            <li>Residential energy consumption represents <span class="highlight">27%</span> of global energy usage</li>
+            <li>Smart meters generating unprecedented volumes of data</li>
+            <li>Energy price volatility increased by <span class="highlight">45%</span> since 2018</li>
+            <li>Need for better demand forecasting and management</li>
+          </ul>
+          <div class="placeholder-image">
+            <p>Energy Consumption Visualization</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 5: The Need for Intelligent Energy Forecasting -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>The Need for Intelligent Energy Forecasting</h2>
+          
+          <div class="card">
+            <h3>Economic Impact</h3>
+            <ul>
+              <li>Average UK household spending <span class="highlight">£1,138</span> annually on electricity</li>
+              <li>Potential savings of <span class="highlight">12-18%</span> through optimized consumption</li>
+            </ul>
+          </div>
+          
+          <div class="card">
+            <h3>Environmental Impact</h3>
+            <ul>
+              <li>Demand-side flexibility could reduce carbon emissions by <span class="highlight">25 million tonnes</span> annually by 2035</li>
+              <li>Better integration of renewable energy sources</li>
+            </ul>
+          </div>
+          
+          <div class="card">
+            <h3>Grid Resilience</h3>
+            <ul>
+              <li>Improved demand forecasting could reduce required operating reserve by up to <span class="highlight">30%</span></li>
+              <li>Enhanced stability during peak demand periods</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 6: Engineering Challenges -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>Engineering Challenges in Energy Forecasting</h2>
+          
+          <div class="grid">
+            <div class="card">
+              <h3>1. The Black Box Problem</h3>
+              <p>Deep learning models provide accuracy but lack transparency</p>
+              <p><span class="highlight">67%</span> of consumers hesitant to use AI systems they don't understand</p>
+            </div>
+            
+            <div class="card">
+              <h3>2. Adaptation to Changing Behaviors</h3>
+              <p>Household consumption patterns can change by <span class="highlight">30%</span> following major life events</p>
+              <p>Static models require frequent retraining</p>
+            </div>
+            
+            <div class="card">
+              <h3>3. Generalization Across Households</h3>
+              <p>Models trained on specific households perform poorly when applied to others</p>
+              <p>Need for transfer learning approaches</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 7: Section B Divider -->
+      <div class="slide section-divider">
+        <div class="slide-content">
+          <h2>SECTION B: Literature Evaluation</h2>
+        </div>
+      </div>
+
+      <!-- Slide 8: Evolution of Energy Forecasting Methods -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>Evolution of Energy Forecasting Methods</h2>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Accuracy</th>
+                <th>Interpretability</th>
+                <th>Adaptability</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Statistical Methods (ARIMA, ES)</td>
+                <td>3-6% MAPE</td>
+                <td>High</td>
+                <td>Low</td>
+              </tr>
+              <tr>
+                <td>Machine Learning (Random Forest, SVR)</td>
+                <td>15-20% improvement over statistical</td>
+                <td>Medium</td>
+                <td>Medium</td>
+              </tr>
+              <tr>
+                <td>Deep Learning (LSTM, CNN)</td>
+                <td>Up to 30% improvement</td>
+                <td>Low</td>
+                <td>High</td>
+              </tr>
+              <tr>
+                <td>Hybrid Models</td>
+                <td>Best performance</td>
+                <td>Low</td>
+                <td>High</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <p><strong>Most approaches sacrifice either accuracy or interpretability</strong></p>
+        </div>
+      </div>
+
+      <!-- Slide 9: Critical Gap in Energy Forecasting -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>Critical Gap: Explainability in Energy Forecasting</h2>
+          
+          <div class="placeholder-image">
+            <p>Explainability Visualization</p>
+          </div>
+          
+          <div class="grid">
+            <div class="card">
+              <h3>Feature Importance Methods</h3>
+              <p>SHAP, LIME</p>
+              <p>Post-hoc explanations, limited actionability</p>
+            </div>
+            
+            <div class="card">
+              <h3>Attention Mechanisms</h3>
+              <p>Improved results (<span class="highlight">+17%</span>) but difficult for non-experts to interpret</p>
+            </div>
+            
+            <div class="card">
+              <h3>Hybrid Architectures</h3>
+              <p>Promising direction but underdeveloped in energy domain</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 10: Key Limitations -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>Key Limitations in Current Research</h2>
+          
+          <ol>
+            <li>
+              <strong>Accuracy-Interpretability Trade-off</strong>
+              <p>Most approaches sacrifice one for the other</p>
+            </li>
+            <li>
+              <strong>Limited Adaptability</strong>
+              <p>Models require extensive retraining for changing patterns</p>
+            </li>
+            <li>
+              <strong>Poor Generalization</strong>
+              <p>Models don't transfer well between different households</p>
+            </li>
+            <li>
+              <strong>Computational Complexity</strong>
+              <p>Many advanced models too resource-intensive for practical use</p>
+            </li>
+          </ol>
+          
+          <p class="highlight">PREDICT-HOME addresses these limitations directly</p>
+        </div>
+      </div>
+
+      <!-- Slide 11: Section C Divider -->
+      <div class="slide section-divider">
+        <div class="slide-content">
+          <h2>SECTION C: Project Plan</h2>
+        </div>
+      </div>
+
+      <!-- Slide 12: Project Vision -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>Project Vision</h2>
+          
+          <div class="card">
+            <p><strong>PREDICT-HOME</strong> envisions intelligent energy forecasting that empowers households to optimize consumption, reduce costs, and contribute to a more sustainable energy system.</p>
+          </div>
+          
+          <p>By providing accurate predictions with clear explanations, the system enables users to understand:</p>
+          
+          <ul>
+            <li><span class="highlight">What</span> their future consumption will be</li>
+            <li><span class="highlight">Why</span> certain patterns emerge</li>
+            <li><span class="highlight">How</span> consumption patterns can be modified</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Slide 13: Project Objectives -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>Project Objectives</h2>
+          
+          <ol>
+            <li>
+              <strong>Design a hybrid CNN-LSTM neural network with attention mechanisms</strong>
+              <p><span class="highlight">15%</span> accuracy improvement over baseline models</p>
+            </li>
+            <li>
+              <strong>Develop an integrated explainability framework</strong>
+              <p>SHAP values and attention visualization</p>
+            </li>
+            <li>
+              <strong>Implement a simplified online learning mechanism</strong>
+              <p>Adaptation to changing consumption patterns</p>
+            </li>
+            <li>
+              <strong>Create a visualization dashboard</strong>
+              <p>Intuitive presentation of forecasts and explanations</p>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Slide 14: System Architecture -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>System Architecture</h2>
+          
+          <div class="architecture">
+            <div class="architecture-layer">
+              <h3>1. Data Processing Layer</h3>
+              <p>Smart meter data preprocessing and feature engineering</p>
+            </div>
+            
+            <div class="architecture-layer">
+              <h3>2. Modeling Layer</h3>
+              <p>Hybrid CNN-LSTM with attention mechanisms</p>
+              <p>Online learning component</p>
+            </div>
+            
+            <div class="architecture-layer">
+              <h3>3. Explainability Layer</h3>
+              <p>SHAP implementation</p>
+              <p>Attention visualization</p>
+            </div>
+            
+            <div class="architecture-layer">
+              <h3>4. User Interface Layer</h3>
+              <p>Interactive dashboard for visualizations and insights</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 15: Methodology -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>Methodology: Key Components</h2>
+          
+          <div class="card">
+            <h3>1. Hybrid CNN-LSTM Architecture</h3>
+            <ul>
+              <li>CNNs for capturing local patterns</li>
+              <li>LSTM for modeling temporal dependencies</li>
+              <li>Attention mechanisms for focusing on relevant time steps</li>
+            </ul>
+          </div>
+          
+          <div class="card">
+            <h3>2. Explainability Framework</h3>
+            <ul>
+              <li>Feature importance using SHAP values</li>
+              <li>Temporal importance via attention visualization</li>
+              <li>User-friendly interface for non-technical users</li>
+            </ul>
+          </div>
+          
+          <div class="card">
+            <h3>3. Online Learning</h3>
+            <ul>
+              <li>Incremental model updates with new data</li>
+              <li>Reduced need for complete retraining</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 16: Project Timeline -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>Project Timeline (6 Weeks)</h2>
+          
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-date">Week 1</div>
+              <p>Project Setup</p>
+              <p>M1</p>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-date">Week 3</div>
+              <p>Baseline Models</p>
+              <p>M2</p>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-date">Week 4</div>
+              <p>Explainability</p>
+              <p>M3</p>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-date">Week 5</div>
+              <p>System Integration</p>
+              <p>M4</p>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-date">Week 6</div>
+              <p>Final Evaluation</p>
+              <p>M5</p>
+            </div>
+          </div>
+          
+          <p><strong>Key Milestones:</strong></p>
+          <ul>
+            <li>M1: Project Setup (Week 1)</li>
+            <li>M2: Baseline Models (Week 3)</li>
+            <li>M3: Explainability (Week 4)</li>
+            <li>M4: System Integration (Week 5)</li>
+            <li>M5: Final Evaluation (Week 6)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Slide 17: Risk Assessment -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>Risk Assessment and Mitigation</h2>
+          
+          <table class="risk-table">
+            <thead>
+              <tr>
+                <th>Risk</th>
+                <th>Impact</th>
+                <th>Likelihood</th>
+                <th>Mitigation Strategy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Data Quality Issues</td>
+                <td class="high">High</td>
+                <td class="medium">Medium</td>
+                <td>Focus on cleaner data subset; basic preprocessing</td>
+              </tr>
+              <tr>
+                <td>Computational Complexity</td>
+                <td class="high">High</td>
+                <td class="medium">Medium</td>
+                <td>Simplified architecture; fewer parameters</td>
+              </tr>
+              <tr>
+                <td>Time Constraints</td>
+                <td class="very-high">Very High</td>
+                <td class="very-high">Very High</td>
+                <td>Strict prioritization; MVP approach</td>
+              </tr>
+              <tr>
+                <td>Technical Skills Gap</td>
+                <td class="medium">Medium</td>
+                <td class="medium">Medium</td>
+                <td>Leverage libraries; focus on documented techniques</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Slide 18: Expected Outcomes -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>Expected Outcomes and Deliverables</h2>
+          
+          <div class="card">
+            <h3>Primary Deliverable: PREDICT-HOME prototype demonstrating:</h3>
+            <ul>
+              <li>Accurate short-term energy forecasting</li>
+              <li>Explainable predictions through SHAP and attention visualization</li>
+              <li>Basic adaptation capabilities</li>
+              <li>Interactive visualization dashboard</li>
+            </ul>
+          </div>
+          
+          <div class="card">
+            <h3>Evaluation: Multi-metric approach measuring:</h3>
+            <ul>
+              <li>Prediction accuracy (MAPE ≤ 10%)</li>
+              <li>Computational efficiency</li>
+              <li>Explainability effectiveness</li>
+              <li>User comprehension</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 19: Beyond the Project -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>Beyond the Project: Future Impact</h2>
+          
+          <div class="grid">
+            <div class="card">
+              <h3>Academic Contributions</h3>
+              <ul>
+                <li>Novel approach to balancing accuracy and explainability</li>
+                <li>Insights into attention mechanisms for energy forecasting</li>
+              </ul>
+            </div>
+            
+            <div class="card">
+              <h3>Practical Applications</h3>
+              <ul>
+                <li>Integration with home energy management systems</li>
+                <li>Support for time-of-use tariff optimization</li>
+                <li>Foundation for demand-side management</li>
+              </ul>
+            </div>
+            
+            <div class="card">
+              <h3>Scalability</h3>
+              <ul>
+                <li>Framework extensible to other forecasting domains</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 20: Reflection -->
+      <div class="slide">
+        <div class="slide-content">
+          <h2>Reflection on Wider Audience Communication</h2>
+          
+          <p>In developing this presentation, I focused on:</p>
+          
+          <ol>
+            <li>
+              <strong>Simplifying technical concepts without sacrificing accuracy</strong>
+              <ul>
+                <li>Using visual explanations for complex architectures</li>
+                <li>Providing relatable examples of energy forecasting benefits</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Emphasizing real-world impact over technical details</strong>
+              <ul>
+                <li>Highlighting economic and environmental benefits</li>
+                <li>Connecting to everyday household energy concerns</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Using visual aids to enhance understanding</strong>
+              <ul>
+                <li>Charts comparing forecasting approaches</li>
+                <li>System architecture diagram</li>
+                <li>Timeline visualization</li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Slide 21: Thank You -->
+      <div class="slide">
+        <div class="slide-content">
+          <h1>Thank You</h1>
+          <h2>Questions?</h2>
+          <p>[Contact Information]</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="progress-bar">
+      <div class="progress" id="progress" style="width: 4.76%"></div>
+    </div>
+    <div class="nav-buttons">
+      <button class="button" id="prevBtn" disabled>Previous</button>
+      <button class="button" id="nextBtn">Next</button>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const slidesContainer = document.getElementById('slidesContainer');
+      const slides = document.querySelectorAll('.slide');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const slideNumber = document.querySelector('.slide-number');
+      const progressBar = document.getElementById('progress');
+      
+      let currentSlide = 0;
+      const totalSlides = slides.length;
+      
+      function updateSlidePosition() {
+        slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+        slideNumber.textContent = `${currentSlide + 1}/${totalSlides}`;
+        progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+        
+        prevBtn.disabled = currentSlide === 0;
+        nextBtn.disabled = currentSlide === totalSlides - 1;
+      }
+      
+      function goToNext() {
+        if (currentSlide < totalSlides - 1) {
+          currentSlide++;
+          updateSlidePosition();
+        }
+      }
+      
+      function goToPrev() {
+        if (currentSlide > 0) {
+          currentSlide--;
+          updateSlidePosition();
+        }
+      }
+      
+      nextBtn.addEventListener('click', goToNext);
+      prevBtn.addEventListener('click', goToPrev);
+      
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+          goToNext();
+        } else if (e.key === 'ArrowLeft') {
+          goToPrev();
+        }
+      });
+      
+      // Initialize
+      updateSlidePosition();
+    });
+  </script>
+</body>
+</html>
